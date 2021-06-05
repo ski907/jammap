@@ -14,10 +14,7 @@ st.set_page_config(layout="wide")
 
 #@st.cache(persist=True)
 def get_ice_jam_csv(file_name):
-    with open(filename, 'rb') as f:
-        result = chardet.detect(f.read())
-    
-    df = pd.read_csv(file_name,encoding=result['encoding'])
+    df = pd.read_csv(file_name)
     df = df.rename(columns={"Latitude" : "lat", "Longitude" : "lon", "Water year" : "WY"})
     df.lon = pd.to_numeric(df.lon,errors="coerce")
     df.lat = pd.to_numeric(df.lat,errors="coerce")
