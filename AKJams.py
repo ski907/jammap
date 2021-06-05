@@ -36,7 +36,7 @@ def lat_lon_check(df):
             df.loc[index,'lon'] = lon
             df.loc[index, 'lat'] = lat
       
-file_name = 'IJDB_dump_4JUNE2021.csv'
+file_name = 'https://github.com/ski907/jammap/blob/d77df87fd0ce180b6c8560de40c493d094fe5c07/IJDB_dump_4JUNE2021_pandas.csv'
 df = get_ice_jam_csv(file_name)       
           
 
