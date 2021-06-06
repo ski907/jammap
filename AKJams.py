@@ -1,12 +1,8 @@
 
 import streamlit as st
-import chardet
-#import numpy as np
 import pandas as pd
 import altair as alt
-#import pydeck as pdk
 import folium
-#from streamlit_folium import folium_static
 import streamlit.components.v1 as components
 from folium.plugins import HeatMap
 
