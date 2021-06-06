@@ -12,7 +12,7 @@ from folium.plugins import HeatMap
 
 st.set_page_config(layout="wide")
 
-#@st.cache(persist=True)
+@st.cache(persist=True)
 def get_ice_jam_csv(file_name):
     df = pd.read_csv(file_name)
     df = df.rename(columns={"Latitude" : "lat", "Longitude" : "lon", "Water year" : "WY"})
@@ -27,7 +27,7 @@ def get_ice_jam_csv(file_name):
 
     return df
 
-#@st.cache
+@st.cache
 def lat_lon_check(df):
     for index, row in df.iterrows():
         if row.lat < 0:
@@ -36,7 +36,7 @@ def lat_lon_check(df):
             df.loc[index,'lon'] = lon
             df.loc[index, 'lat'] = lat
       
-file_name = 'https://github.com/ski907/jammap/blob/d77df87fd0ce180b6c8560de40c493d094fe5c07/IJDB_dump_4JUNE2021_pandas.csv'
+file_name = r'https://raw.githubusercontent.com/ski907/jammap/main/IJDB_dump_4JUNE2021_pandas.csv'
 df = get_ice_jam_csv(file_name)       
           
 
