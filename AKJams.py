@@ -6,6 +6,9 @@ import streamlit.components.v1 as components
 from folium.plugins import HeatMap
 from datetime import datetime
 import calendar
+from htbuilder import HtmlElement, div, ul, li, br, hr, a, p, img, styles, classes, fonts
+from htbuilder.units import percent, px
+from htbuilder.funcs import rgba, rgb
 
 st.set_page_config(layout="wide")
 
@@ -36,6 +39,13 @@ def lat_lon_check(df):
 file_name = r'https://raw.githubusercontent.com/ski907/jammap/main/IJDB_dump_4JUNE2021_pandas.csv'
 df = get_ice_jam_csv(file_name)       
           
+chart_placeholder = st.empty()
+chart_placeholder.beta_container()
+components.html(
+    "This is the output:<br>",
+    height=1,
+    
+)
 
 def comp_c(year,df_counts):
     c = alt.Chart(df_counts).mark_bar().encode(
@@ -60,7 +70,12 @@ df_counts = df_counts.reset_index().rename(columns={"WY":'counts'})
 
 year =  st.slider("Water Year", min_year, max(df.WY))
 
-month_filter = st.checkbox('Filter by Month?')
+
+focus = st.sidebar.selectbox('Focus Map', ['All','CONUS','Alaska'])
+heat_pick = st.sidebar.selectbox('Heatmap Display',['None','All Years','Selected Year'])
+month_filter = st.sidebar.checkbox('Filter by Occurrence Chart by Month?')
+state_level = st.sidebar.checkbox('Show State Level Occurrence Chart?')
+
 
 if month_filter:
     #month = st.slider("Month",1,12, value = 1)
@@ -78,17 +93,15 @@ if month_filter:
     df_counts = df_counts.reindex(index, fill_value=0)
     df_counts = df_counts.reset_index().rename(columns={"WY":'counts'})
     map_title = 'Location of jams in {}, filtered by events in {}'.format(year,calendar.month_abbr[month])
-    chart_title = 'Ice Jam Occurences for All Geographic Regions of United States, filtered by events in {}'.format(calendar.month_abbr[month])
+    chart_title = 'Ice Jam Occurrences for All Geographic Regions of United States, filtered by events in {}'.format(calendar.month_abbr[month])
 else:
     map_title = 'Location of jams in {}'.format(year)
-    chart_title = 'Ice Jam Occurences for All Geographic Regions of United States'
+    chart_title = 'Ice Jam Occurrences for All Geographic Regions of United States'
     df_map = df[(df.WY == year)]
     
 c = comp_c(year,df_counts)
 st.text(chart_title)
 st.altair_chart(c, use_container_width=True)
-
-state_level = st.checkbox('Show State Level Chart?')
 
 if state_level:
     states = list(set(df.State.to_list()))
@@ -97,7 +110,7 @@ if state_level:
     state = st.selectbox('States',states)
     
     if month_filter:
-        st.text('Ice Jam Occurences for {}, filtered by events in {}'.format(state,calendar.month_abbr[month]))
+        st.text('Ice Jam Occurrences for {}, filtered by events in {}'.format(state,calendar.month_abbr[month]))
         df_state = df_month[df.State == state]
     else:
         st.text('Ice Jam Occurences for {}'.format(state))
@@ -111,18 +124,31 @@ if state_level:
     #st.text('Ice Jam Occurences for {}'.format(state))
     st.altair_chart(c_state, use_container_width=True)
 
-focus = st.sidebar.selectbox('Focus Map', ['All','CONUS','Alaska'])
-heat_pick = st.sidebar.selectbox('Heatmap Display',['None','All Years','Selected Year'])
 
 if focus == 'All':
     loc = [55, -110]
-    zoom = 4
+    zoom = 3.45
 elif focus == 'CONUS':
     loc = [40, -97]
     zoom = 5
 elif focus == 'Alaska':
     loc = [64, -155]
     zoom = 5
+
+def do_heatmap(df,map_ak):
+    lat = df.lat.tolist()
+    lon = df.lon.tolist()
+
+    HeatMap(list(zip(lat, lon)),radius=10, blur=5).add_to(folium.FeatureGroup(name='All Time Heat Map').add_to(map_ak))
+    #folium.LayerControl().add_to(map_ak)
+
+def do_annual_heatmap(df_map,map_ak):
+    lat = df_map.lat.tolist()
+    lon = df_map.lon.tolist()
+
+    HeatMap(list(zip(lat, lon)),radius=20, blur=15).add_to(folium.FeatureGroup(name='Annual Heat Map').add_to(map_ak))
+    #folium.LayerControl().add_to(map_ak)
+
 
 st.text(map_title)
 map_ak = folium.Map(tiles='cartodbdark_matter',  location=loc, zoom_start=zoom)
@@ -142,31 +168,69 @@ for lat, lon, city, jamtype, date in zip(df_map.lat, df_map.lon, df_map.City, df
         fill=True,
         fill_color='red'        
     ).add_to(map_ak)
-    
-
-def do_heatmap(df,map_ak):
-    lat = df.lat.tolist()
-    lon = df.lon.tolist()
-
-    HeatMap(list(zip(lat, lon)),radius=10, blur=5).add_to(folium.FeatureGroup(name='All Time Heat Map').add_to(map_ak))
-    #folium.LayerControl().add_to(map_ak)
-
-def do_annual_heatmap(df_map,map_ak):
-    lat = df_map.lat.tolist()
-    lon = df_map.lon.tolist()
-
-    HeatMap(list(zip(lat, lon)),radius=20, blur=15).add_to(folium.FeatureGroup(name='Annual Heat Map').add_to(map_ak))
-    #folium.LayerControl().add_to(map_ak)
 
 if heat_pick == 'All Years':
     do_heatmap(df,map_ak)
 elif heat_pick == 'Selected Year':
     do_annual_heatmap(df_map,map_ak)
 
-def folium_static2(fig,width=1500, height=900):
+def folium_static2(fig,width=1200, height=600):
     if isinstance(fig, folium.Map):
         fig = folium.Figure().add_child(fig)
 
     return components.html(fig.render(), height=(fig.height or height) + 10, width=width)
+with chart_placeholder.beta_container():
+    folium_static2(map_ak)
 
-folium_static2(map_ak)
+##########
+# Footer #                         #  https://discuss.streamlit.io/t/st-footer/6447
+##########
+
+def image(src_as_string, **style):
+    return img(src=src_as_string, style=styles(**style))
+
+def link(link, text, **style):
+    return a(_href=link, _target="_blank", style=styles(**style))(text)
+
+
+def layout(*args):
+    style = """
+    <style>
+        MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stApp { bottom: 60px; }
+    </style>
+    """
+
+    style_div = styles(
+        position="fixed",
+        right=0,
+        bottom=0,
+        margin=px(0, 15, 0, 0),
+        text_align="center",
+        opacity=0.5,
+    )
+
+    body = p()
+    foot = div(
+        style=style_div
+    )(
+        body
+    )
+
+    st.markdown(style, unsafe_allow_html=True)
+    for arg in args:
+        if isinstance(arg, str):
+            body(arg)
+        elif isinstance(arg, HtmlElement):
+            body(arg)
+    st.markdown(str(foot), unsafe_allow_html=True)
+
+def footer():
+    myargs = [
+        link("https://icejam.sec.usace.army.mil/",image('https://raw.githubusercontent.com/ski907/jammap/main/CRREL_logo_small.png')),
+    ]
+    layout(*myargs)
+
+if __name__ == "__main__":
+    footer()
