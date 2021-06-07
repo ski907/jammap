@@ -47,10 +47,10 @@ components.html(
     
 )
 
-def comp_c(year,df_counts):
+def comp_c(year,df_counts,scale_domain):
     c = alt.Chart(df_counts).mark_bar().encode(
         alt.X('index:N', axis=alt.Axis(labelOverlap=False)),
-        y='counts',
+        alt.Y('counts:Q', scale=alt.Scale(domain=scale_domain)),
         color=alt.condition(
             alt.datum.index == year,  
             alt.value('orange'),     
@@ -94,12 +94,14 @@ if month_filter:
     df_counts = df_counts.reset_index().rename(columns={"WY":'counts'})
     map_title = 'Location of jams in {}, filtered by events in {}'.format(year,calendar.month_abbr[month])
     chart_title = 'Ice Jam Occurrences for All Geographic Regions of United States, filtered by events in {}'.format(calendar.month_abbr[month])
+    scale_domain = [0,300]
 else:
     map_title = 'Location of jams in {}'.format(year)
     chart_title = 'Ice Jam Occurrences for All Geographic Regions of United States'
     df_map = df[(df.WY == year)]
+    scale_domain = [0,600]
     
-c = comp_c(year,df_counts)
+c = comp_c(year,df_counts,scale_domain=scale_domain)
 st.text(chart_title)
 st.altair_chart(c, use_container_width=True)
 
@@ -120,7 +122,7 @@ if state_level:
     df_counts_state = df_counts_state.reindex(index, fill_value=0)
     df_counts_state = df_counts_state.reset_index().rename(columns={"WY":'counts'})
     
-    c_state = comp_c(year,df_counts_state)
+    c_state = comp_c(year,df_counts_state,scale_domain=[0,100])
     #st.text('Ice Jam Occurences for {}'.format(state))
     st.altair_chart(c_state, use_container_width=True)
 
