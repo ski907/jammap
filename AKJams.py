@@ -68,9 +68,9 @@ index = range(min_year,max(df.WY))
 df_counts = df_counts.reindex(index, fill_value=0)
 df_counts = df_counts.reset_index().rename(columns={"WY":'counts'})
 
-year =  st.slider("Water Year", min_year, max(df.WY))
+year =  st.sidebar.slider("Water Year", min_year, max(df.WY))
 
-
+#year =  st.sidebar.selectbox("Water Year", range(min_year, max(df.WY)))
 focus = st.sidebar.selectbox('Focus Map', ['All','CONUS','Alaska'])
 heat_pick = st.sidebar.selectbox('Heatmap Display',['None','All Years','Selected Year'])
 month_filter = st.sidebar.checkbox('Filter by Occurrence Chart by Month?')
@@ -157,14 +157,16 @@ map_ak = folium.Map(tiles='cartodbdark_matter',  location=loc, zoom_start=zoom)
 
 color_map = ['']
 
-for lat, lon, city, jamtype, date in zip(df_map.lat, df_map.lon, df_map.City, df_map['Jam type'], df_map['Jam date']):
+for lat, lon, city, jamtype, date, damage in zip(df_map.lat, df_map.lon, df_map.City, df_map['Jam type'], df_map['Jam date'], df_map['Damages']):
     folium.vector_layers.CircleMarker(
         location=[lat, lon],
         tooltip=f'<b>City: </b>{city}'
                 f'<br></br>'
                 f'<b>Date: </b>{date}'
                 f'<br></br>'
-                f'<b>Jam Type </b>{jamtype}',
+                f'<b>Jam Type </b>{jamtype}'
+                f'<br></br>'
+                f'<b>Damages </b>{damage}',
         radius=10,
         color='red',
         fill=True,
