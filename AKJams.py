@@ -152,7 +152,7 @@ def do_annual_heatmap(df_map,map_ak):
     #folium.LayerControl().add_to(map_ak)
 
 
-st.text(map_title)
+
 map_ak = folium.Map(tiles='cartodbdark_matter',  location=loc, zoom_start=zoom)
 
 color_map = ['']
@@ -182,6 +182,7 @@ def folium_static2(fig,width=1200, height=600):
 
     return components.html(fig.render(), height=(fig.height or height) + 10, width=width)
 with chart_placeholder.beta_container():
+    st.text(map_title)
     folium_static2(map_ak)
 
 ##########
