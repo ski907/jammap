@@ -75,6 +75,8 @@ focus = st.sidebar.selectbox('Focus Map', ['All','CONUS','Alaska'])
 heat_pick = st.sidebar.selectbox('Heatmap Display',['None','All Years','Selected Year'])
 month_filter = st.sidebar.checkbox('Filter by Occurrence Chart by Month?')
 state_level = st.sidebar.checkbox('Show State Level Occurrence Chart?')
+all_jams = st.sidebar.checkbox('Plot all jams? (slow plotting)')
+no_jams = st.sidebar.checkbox('Turn Off Jam Markers')
 
 
 if month_filter:
@@ -151,26 +153,39 @@ def do_annual_heatmap(df_map,map_ak):
     HeatMap(list(zip(lat, lon)),radius=20, blur=15).add_to(folium.FeatureGroup(name='Annual Heat Map').add_to(map_ak))
     #folium.LayerControl().add_to(map_ak)
 
+mark_radius = 6
+mark_color = 'red'
 
+if all_jams:
+    df_map = df
+    mark_radius = 6
+    mark_color = 'blue'
+    map_title = 'Location of all jams in the IJDB'
+
+#if no_jams:
+#    all_jams = False
+#    df_map = pd.DataFrame(columns=df.columns)
+    
 
 map_ak = folium.Map(tiles='cartodbdark_matter',  location=loc, zoom_start=zoom)
 
 color_map = ['']
 
-for lat, lon, city, jamtype, date, damage in zip(df_map.lat, df_map.lon, df_map.City, df_map['Jam type'], df_map['Jam date'], df_map['Damages']):
-    folium.vector_layers.CircleMarker(
-        location=[lat, lon],
-        tooltip=f'<b>City: </b>{city}'
-                f'<br></br>'
-                f'<b>Date: </b>{date}'
-                f'<br></br>'
-                f'<b>Jam Type </b>{jamtype}'
-                f'<br></br>'
-                f'<b>Damages </b>{damage}',
-        radius=10,
-        color='red',
-        fill=True,
-        fill_color='red'        
+if no_jams == False:
+    for lat, lon, city, jamtype, date, damage in zip(df_map.lat, df_map.lon, df_map.City, df_map['Jam type'], df_map['Jam date'], df_map['Damages']):
+        folium.vector_layers.CircleMarker(
+            location=[lat, lon],
+            tooltip=f'<b>City: </b>{city}'
+                    f'<br></br>'
+                    f'<b>Date: </b>{date}'
+                    f'<br></br>'
+                    f'<b>Jam Type </b>{jamtype}'
+                    f'<br></br>'
+                    f'<b>Damages </b>{damage}',
+            radius=mark_radius,
+            color=mark_color,
+            fill=True,
+            fill_color=mark_color        
     ).add_to(map_ak)
 
 if heat_pick == 'All Years':
