@@ -78,12 +78,14 @@ if month_filter:
     df_counts = df_counts.reindex(index, fill_value=0)
     df_counts = df_counts.reset_index().rename(columns={"WY":'counts'})
     map_title = 'Location of jams in {}, filtered by events in {}'.format(year,calendar.month_abbr[month])
+    chart_title = 'Ice Jam Occurences for All Geographic Regions of United States, filtered by events in {}'.format(calendar.month_abbr[month])
 else:
     map_title = 'Location of jams in {}'.format(year)
+    chart_title = 'Ice Jam Occurences for All Geographic Regions of United States'
     df_map = df[(df.WY == year)]
     
 c = comp_c(year,df_counts)
-st.text('Ice Jam Occurences for All Geographic Regions of United States')
+st.text(chart_title)
 st.altair_chart(c, use_container_width=True)
 
 state_level = st.checkbox('Show State Level Chart?')
