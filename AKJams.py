@@ -65,9 +65,9 @@ month_filter = st.checkbox('Filter by Month?')
 if month_filter:
     #month = st.slider("Month",1,12, value = 1)
     month = st.slider("Month",
-                      min_value=datetime(2019,10,1),
-                      max_value=datetime(2020,9,1),
-                      value=datetime(2019, 11, 1),
+                      min_value=datetime(2019,10,2),
+                      max_value=datetime(2020,9,2),
+                      value=datetime(2019, 11, 2),
                       format="MMM")
     month = month.month
     
