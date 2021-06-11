@@ -248,7 +248,7 @@ def layout(*args):
 
 def footer():
     myargs = [
-        link("https://icejam.sec.usace.army.mil/",image('https://raw.githubusercontent.com/ski907/jammap/main/CRREL_logo_small.png')),
+        link("jams.iskion.rocks",image('https://raw.githubusercontent.com/ski907/jammap/main/iskionrocks.png')),
     ]
     layout(*myargs)
 
