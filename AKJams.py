@@ -248,7 +248,7 @@ def layout(*args):
 
 def footer():
     myargs = [
-        link("jams.iskion.rocks",image('https://raw.githubusercontent.com/ski907/jammap/main/iskionrocks.png')),
+        link("jams.iskion.rocks",image('https://raw.githubusercontent.com/ski907/jammap/main/iskionrocks_small.png')),
     ]
     layout(*myargs)
 
